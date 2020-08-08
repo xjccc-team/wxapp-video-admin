@@ -22,9 +22,9 @@
     <template v-slot:rightContentRender>
       <right-content :top-menu="settings.layout === 'topmenu'" :is-mobile="isMobile" :theme="settings.theme" />
     </template>
-    <!-- <template v-slot:footerRender>
+    <template v-slot:footerRender>
       <global-footer />
-    </template> -->
+    </template>
     <router-view />
   </pro-layout>
 </template>
@@ -37,7 +37,7 @@ import { CONTENT_WIDTH_TYPE, SIDEBAR_TYPE, TOGGLE_MOBILE_TYPE } from '@/store/mu
 
 import defaultSettings from '@/config/defaultSettings'
 import RightContent from '@/components/GlobalHeader/RightContent'
-// import GlobalFooter from '@/components/GlobalFooter'
+import GlobalFooter from '@/components/GlobalFooter'
 import Ads from '@/components/Other/CarbonAds'
 import LogoSvg from '../assets/logo.svg?inline'
 
@@ -46,7 +46,7 @@ export default {
   components: {
     SettingDrawer,
     RightContent,
-    // GlobalFooter,
+    GlobalFooter,
     Ads
   },
   data () {
