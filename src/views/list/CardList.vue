@@ -20,7 +20,7 @@
       :dataSource="dataSource">
       <a-list-item slot="renderItem" slot-scope="index">
         <template >
-          <a-card :hoverable="true">
+          <a-card :hoverable="false">
             <a-card-meta>
               <a slot="title">13279511891</a>
               <div class="meta-content" slot="description">
@@ -94,7 +94,7 @@ export default {
     }
   },
   created () {
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 1; i++) {
       this.dataSource.push({
         id: i,
         title: 'Alipay',
@@ -159,9 +159,6 @@ export default {
         line-height: 22px;
         display: inline-block;
         width: 100%;
-        &:hover {
-          color: @primary-color;
-        }
       }
     }
   }
