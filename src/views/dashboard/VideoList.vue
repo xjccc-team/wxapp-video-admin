@@ -140,6 +140,7 @@ export default {
       margin:0 20px 20px;
       button{
         color: #fff;
+        margin-top: 3px;
       }
     }
   /deep/ .ant-card-actions {

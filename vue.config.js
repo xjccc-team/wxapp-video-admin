@@ -4,7 +4,6 @@ const GitRevisionPlugin = require('git-revision-webpack-plugin')
 const GitRevision = new GitRevisionPlugin()
 const buildDate = JSON.stringify(new Date().toLocaleString())
 const createThemeColorReplacerPlugin = require('./config/plugin.config')
-
 function resolve (dir) {
   return path.join(__dirname, dir)
 }
@@ -50,7 +49,6 @@ const vueConfig = {
         BUILD_DATE: buildDate
       })
     ],
-    // if prod, add externals
     externals: isProd ? assetsCDN.externals : {}
   },
 
@@ -74,8 +72,6 @@ const vueConfig = {
         name: 'assets/[name].[hash:8].[ext]'
       })
 
-    // if prod is on
-    // assets require on cdn
     if (isProd) {
       config.plugin('html').tap(args => {
         args[0].cdn = assetsCDN
@@ -88,18 +84,15 @@ const vueConfig = {
     loaderOptions: {
       less: {
         modifyVars: {
-          // less vars，customize ant design theme
-
-          // 'primary-color': '#F5222D',
-          // 'link-color': '#F5222D',
           'border-radius-base': '2px'
         },
-        // DO NOT REMOVE THIS LINE
         javascriptEnabled: true
       }
     }
   },
-
+  publicPath: isProd ? '/admin/' : '/',
+  assetsDir: 'static',
+  outputDir: 'dist',
   devServer: {
     // development server port 8000
     port: 8000
@@ -112,18 +105,12 @@ const vueConfig = {
     //   }
     // }
   },
-
-  // disable source map in production
   productionSourceMap: false,
   lintOnSave: undefined,
-  // babel-loader no-ignore node_modules/*
   transpileDependencies: []
 }
 
-// preview.pro.loacg.com only do not use in your production;
 if (process.env.VUE_APP_PREVIEW === 'true') {
-  console.log('VUE_APP_PREVIEW', true)
-  // add `ThemeColorReplacer` plugin to webpack plugins
   vueConfig.configureWebpack.plugins.push(createThemeColorReplacerPlugin())
 }
 
