@@ -1,7 +1,7 @@
 import request from '@/utils/request'
-
+const ConfigURL = '/api-server'
 const userApi = {
-  Login: '/auth/login',
+  Login: '/admin/user/login',
   Logout: '/auth/logout',
   ForgePassword: '/auth/forge-password',
   Register: '/auth/register',
@@ -26,8 +26,8 @@ const userApi = {
  */
 export function login (parameter) {
   return request({
-    url: userApi.Login,
-    method: 'post',
+    url: `${ConfigURL}/admin/user/login`,
+    method: 'POST',
     data: parameter
   })
 }

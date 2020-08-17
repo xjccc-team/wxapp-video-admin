@@ -2,11 +2,12 @@
   <page-header-wrapper
     :tab-list="tabList"
     :tab-active-key="tabActiveKey"
-    :tab-change="(key) => {this.tabActiveKey = key}" >
+    :tab-change="changeTab" >
+
     <a-form layout="inline" class="search-wrap" @keyup.enter.native="searchQuery">
       <a-row :gutter="24">
         <a-form-item label="手机号">
-          <a-input placeholder="请输入手机号" style="width:100%"/>
+          <a-input placeholder="请输入手机号" style="width:100%" v-model="mobilePhone"/>
         </a-form-item>
         <a-button type="primary" @click="searchQuery" icon="search">查询</a-button>
       </a-row>
@@ -22,24 +23,24 @@
         <template >
           <a-card :hoverable="false">
             <a-card-meta>
-              <a slot="title">13279511891</a>
+              <a slot="title">{{ renderItem.mobilePhone }}</a>
               <div class="meta-content" slot="description">
-                <video :ref="`video${index}`" controls="controls" width="100%" preload >
-                  <source src="https://www.runoob.com/try/demo_source/mov_bbb.mp4" type="video/mp4">
-                  <source src="https://www.runoob.com/try/demo_source/mov_bbb.ogg" type="video/ogg">
-                  您的浏览器不支持 HTML5 video 标签。
-                </video>
+                <video controls="controls" width="100%" preload >
+                  <source :src="renderItem.videoSrc" type="video/mp4">您的浏览器不支持 HTML5 video 标签。</video>
               </div>
             </a-card-meta>
             <template class="ant-card-actions" slot="actions">
-              <a v-if="tabActiveKey=='tab1'" style="color:#ff4d4f" @click="showCencel">拒绝</a>
-              <a v-if="tabActiveKey=='tab1'" @click="isOk">通过</a>
-              <a v-if="tabActiveKey=='tab2'">点赞修改: <a-input-number size="small" :min="1" :max="100" /></a>
+              <a v-if="tabActiveKey=='0'" style="color:#ff4d4f" @click="showModel(2,renderItem,index)">拒绝</a>
+              <a v-if="tabActiveKey=='0'" @click="verifySubmit(1,renderItem,index)">通过</a>
+              <a v-if="tabActiveKey=='1'">点赞修改: <a-input-number size="small" v-model="renderItem.praise" :min="1" :max="100" /></a>
+              <a v-if="tabActiveKey=='1'" @click="editPrise(renderItem)">确认</a>
+              <a v-if="tabActiveKey=='2'" @click="deleteVideo(renderItem)">删除</a>
             </template>
           </a-card>
         </template>
       </a-list-item>
     </a-list>
+
     <a-modal
       :maskClosable="false"
       width="40%"
@@ -55,7 +56,7 @@
               :labelCol="labelCol"
               :wrapperCol="wrapperCol"
               label="拒绝原因">
-              <a-input v-model="form.desc" placeholder="拒绝原因" type="textarea" />
+              <a-input v-decorator="['refuseReason', { rules: [{ required: true, message: '请填写拒绝原因!' }] }]" placeholder="拒绝原因" type="textarea" />
             </a-form-item>
           </a-col>
         </a-row>
@@ -65,67 +66,136 @@
 </template>
 
 <script>
-
+import XHR from '../../api/video'
 export default {
   name: 'CardList',
   data () {
     return {
-      current: 2,
       pagination: {
         onChange: page => {
           console.log(page)
+          this.getVideoList()
         },
-        pageSize: 3
+        current: 1,
+        pageSize: 10,
+        total: 0
       },
       tabList: [
-        { key: 'tab1', tab: '未审核' },
-        { key: 'tab2', tab: '已审核' }
+        { key: '0', tab: '未审核' },
+        { key: '1', tab: '已审核' },
+        { key: '2', tab: '未通过' }
       ],
       visible: false,
       confirmLoading: false,
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
+      mobilePhone: '',
       form: {
-        name: ''
+        refuseReason: ''
       },
-      tabActiveKey: 'tab1',
-      extraImage: 'https://gw.alipayobjects.com/zos/rmsportal/RzwpdLnhmvDJToTdfDPe.png',
+      tabActiveKey: '0',
       dataSource: []
     }
   },
   created () {
-    for (let i = 0; i < 1; i++) {
-      this.dataSource.push({
-        id: i,
-        title: 'Alipay',
-        avatar: 'https://gw.alipayobjects.com/zos/rmsportal/WdGqmHpayyMjiEhcKoVE.png',
-        content: '在中台产品的研发过程中，会出现不同的设计规范和实现方式，但其中往往存在很多类似的页面和组件，这些类似的组件会被抽离成一套标准规范。'
-      })
-    }
+    this.getVideoList()
   },
   methods: {
-    playVideo (index) {
-      const key = 'video' + index
-      this.$refs[key].play()
+    // tab切换
+    changeTab (key) {
+      this.pagination.current = 1
+      this.tabActiveKey = key
+      this.mobilePhone = ''
+      this.getVideoList()
     },
-    showCencel () {
+    // 搜索
+    searchQuery () {
+      this.getVideoList()
+    },
+    // 获取视频列表
+    getVideoList () {
+      const json = {
+        status: this.tabActiveKey,
+        pageIndex: this.pagination.current,
+        pageSize: 10,
+        mobilePhone: this.mobilePhone
+      }
+      XHR.videoList(json).then(res => {
+        const { status, data } = res
+        if (status === 0) {
+          this.dataSource = data.videoInfoDTOList
+          this.pagination.total = data.totalCount
+        }
+      })
+    },
+    // 显示弹窗
+    showModel (status, videoCode, index) {
+      this.form.status = status
+      this.form.videoCode = videoCode
+      this.form.index = index
       this.visible = true
     },
-    onSubmit () {
-      console.log('submit!', this.form)
-    },
-    handleOk (e) {
-       this.visible = false
-        this.confirmLoading = false
-    },
+    // 关闭弹窗
     handleCancel (e) {
       this.visible = false
     },
-    isOk () {
-      this.$message.success('审核通过', 1)
+    // 弹窗提交
+    handleOk (e) {
+      this.form.validateFields((err, values) => {
+        if (!err) {
+          this.confirmLoading = false
+          console.log(this.form)
+          XHR.videoVerify(this.form).then(res => {
+            if (res.status === 0) {
+              this.dataSource.splice(this.form.index, 1)
+              this.$message.success('审核成功')
+               this.visible = false
+            } else {
+              this.$message.success(res.data)
+            }
+          })
+        }
+      })
     },
-    searchQuery () {
-
+    // 审核视频
+    verifySubmit (status, videoCode, index, refuseReason) {
+      const json = {
+        videoCode,
+        status,
+        refuseReason
+      }
+      XHR.videoVerify(json).then(res => {
+        if (res.status === 0) {
+          this.dataSource.splice(index, 1)
+          this.$message.success('审核通过')
+        } else {
+          this.$message.success(res.data)
+        }
+      })
+    },
+    // 编辑点赞
+    editPrise (item) {
+      const json = {
+        videoCode: item.videoCode,
+        count: item.prise
+      }
+      XHR.videoVerify(json).then(res => {
+        if (res.status === 0) {
+          this.$message.success('修改成功')
+        } else {
+          this.$message.success(res.data)
+        }
+      })
+    },
+    // 删除视频
+    deleteVideo (item) {
+       XHR.videoDel({ code: item.videoCode }).then(res => {
+        if (res.status === 0) {
+          this.$message.success('修改成功')
+        } else {
+          this.$message.success(res.data)
+        }
+      })
     }
   }
 }
