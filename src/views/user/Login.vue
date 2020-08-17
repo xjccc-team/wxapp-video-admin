@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import md5 from 'md5'
+// import md5 from 'md5'
 import TwoStepCaptcha from '@/components/tools/TwoStepCaptcha'
 import { mapActions } from 'vuex'
 import { timeFix } from '@/utils/util'
@@ -138,7 +138,7 @@ export default {
         if (!err) {
           const loginParams = {
             'userName': values.username,
-            'password': md5(values.password)
+            'password': values.password
           }
           Login(loginParams)
             .then((res) => this.loginSuccess(res))
@@ -197,6 +197,8 @@ export default {
       })
     },
     loginSuccess (res) {
+      console.log(res)
+
       this.$router.push({ path: '/' })
       // 延迟 1 秒显示欢迎信息
       setTimeout(() => {
