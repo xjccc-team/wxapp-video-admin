@@ -19,22 +19,22 @@
       :pagination="pagination"
       :grid="{gutter: 24, lg: 3, md: 2, sm: 1, xs: 1}"
       :dataSource="dataSource">
-      <a-list-item slot="renderItem" slot-scope="index">
+      <a-list-item slot="renderItem" slot-scope="item,index">
         <template >
           <a-card :hoverable="false">
             <a-card-meta>
-              <a slot="title">{{ renderItem.mobilePhone }}</a>
+              <a slot="title">{{ item.mobilePhone }}</a>
               <div class="meta-content" slot="description">
                 <video controls="controls" width="100%" preload >
-                  <source :src="renderItem.videoSrc" type="video/mp4">您的浏览器不支持 HTML5 video 标签。</video>
+                  <source :src="item.videoSrc" type="video/mp4">您的浏览器不支持 HTML5 video 标签。</video>
               </div>
             </a-card-meta>
             <template class="ant-card-actions" slot="actions">
-              <a v-if="tabActiveKey=='0'" style="color:#ff4d4f" @click="showModel(2,renderItem,index)">拒绝</a>
-              <a v-if="tabActiveKey=='0'" @click="verifySubmit(1,renderItem,index)">通过</a>
-              <a v-if="tabActiveKey=='1'">点赞修改: <a-input-number size="small" v-model="renderItem.praise" :min="1" :max="100" /></a>
-              <a v-if="tabActiveKey=='1'" @click="editPrise(renderItem)">确认</a>
-              <a v-if="tabActiveKey=='2'" @click="deleteVideo(renderItem)">删除</a>
+              <a v-if="tabActiveKey=='0'" style="color:#ff4d4f" @click="showModel(2,item,index)">拒绝</a>
+              <a v-if="tabActiveKey=='0'" @click="verifySubmit(1,item,index)">通过</a>
+              <a v-if="tabActiveKey=='1'">点赞修改: <a-input-number size="small" v-model="item.praise" :min="1" /></a>
+              <a v-if="tabActiveKey=='1'" @click="editPrise(item)">确认</a>
+              <a v-if="tabActiveKey=='2'" @click="deleteVideo(item,index)">删除</a>
             </template>
           </a-card>
         </template>
@@ -89,10 +89,9 @@ export default {
       confirmLoading: false,
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
-      mobilePhone: '',
-      form: {
-        refuseReason: ''
-      },
+      mobilePhone: null,
+      model: {},
+      form: this.$form.createForm(this),
       tabActiveKey: '0',
       dataSource: []
     }
@@ -105,7 +104,8 @@ export default {
     changeTab (key) {
       this.pagination.current = 1
       this.tabActiveKey = key
-      this.mobilePhone = ''
+      this.mobilePhone = null
+      this.dataSource = []
       this.getVideoList()
     },
     // 搜索
@@ -129,10 +129,10 @@ export default {
       })
     },
     // 显示弹窗
-    showModel (status, videoCode, index) {
-      this.form.status = status
-      this.form.videoCode = videoCode
-      this.form.index = index
+    showModel (status, item, index) {
+      this.model.status = status
+      this.model.videoCode = item.videoCode
+      this.model.index = index
       this.visible = true
     },
     // 关闭弹窗
@@ -144,8 +144,8 @@ export default {
       this.form.validateFields((err, values) => {
         if (!err) {
           this.confirmLoading = false
-          console.log(this.form)
-          XHR.videoVerify(this.form).then(res => {
+          const formData = { ...this.model, ...values }
+          XHR.videoVerify(formData).then(res => {
             if (res.status === 0) {
               this.dataSource.splice(this.form.index, 1)
               this.$message.success('审核成功')
@@ -158,9 +158,9 @@ export default {
       })
     },
     // 审核视频
-    verifySubmit (status, videoCode, index, refuseReason) {
+    verifySubmit (status, item, index, refuseReason) {
       const json = {
-        videoCode,
+        videoCode: item.videoCode,
         status,
         refuseReason
       }
@@ -175,11 +175,12 @@ export default {
     },
     // 编辑点赞
     editPrise (item) {
+      console.log(item)
       const json = {
         videoCode: item.videoCode,
-        count: item.prise
+        count: item.praise
       }
-      XHR.videoVerify(json).then(res => {
+      XHR.videoChangePraise(json).then(res => {
         if (res.status === 0) {
           this.$message.success('修改成功')
         } else {
@@ -188,10 +189,11 @@ export default {
       })
     },
     // 删除视频
-    deleteVideo (item) {
+    deleteVideo (item, index) {
        XHR.videoDel({ code: item.videoCode }).then(res => {
         if (res.status === 0) {
-          this.$message.success('修改成功')
+          this.$message.success('删除成功')
+          this.dataSource.splice(index, 1)
         } else {
           this.$message.success(res.data)
         }
@@ -211,6 +213,13 @@ export default {
       button{
         color: #fff;
         margin-top: 3px;
+      }
+    }
+    .meta-content{
+      height: 200px;
+      video{
+        width: 100%;
+        height: 100%;
       }
     }
   /deep/ .ant-card-actions {
