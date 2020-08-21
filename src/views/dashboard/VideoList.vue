@@ -33,8 +33,10 @@
               <a v-if="tabActiveKey=='0'" style="color:#ff4d4f" @click="showModel(2,item,index)">拒绝</a>
               <a v-if="tabActiveKey=='0'" @click="verifySubmit(1,item,index)">通过</a>
               <a v-if="tabActiveKey=='1'">点赞修改: <a-input-number size="small" v-model="item.praise" :min="1" /></a>
-              <a v-if="tabActiveKey=='1'" @click="editPrise(item)">确认</a>
-              <a v-if="tabActiveKey=='2'" @click="deleteVideo(item,index)">删除</a>
+              <div style="display:flex;flex:1" v-if="tabActiveKey!='0'">
+                <a v-if="tabActiveKey=='1'" @click="editPrise(item)">确认</a>
+                <a v-if="tabActiveKey=='1'||tabActiveKey=='2'" @click="deleteVideo(item,index)">删除</a>
+              </div>
             </template>
           </a-card>
         </template>
