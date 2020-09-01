@@ -1,5 +1,5 @@
 import { axios } from '@/utils/request'
-const ConfigURL = '/api-server/'
+const ConfigURL = '/api-server'
 class ConfigXHR {
   //  审核接口
   login (parameter) {
@@ -29,6 +29,23 @@ class ConfigXHR {
   videoDel (parameter) {
     return axios({
       url: `${ConfigURL}/admin/video/del`, method: 'GET', params: parameter
+    })
+  }
+  // 地图城市列表获取
+  mapList (parameter) {
+    return axios({
+      url: `${ConfigURL}/lightmap/list`, method: 'GET', params: parameter
+    })
+  }
+  // 添加地图城市
+  mapModify (parameter) {
+    return axios({
+      url: `${ConfigURL}/admin/lightmap/modify`,
+      method: 'POST',
+      data: parameter,
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8'
+      }
     })
   }
 }

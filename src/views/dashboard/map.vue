@@ -1,12 +1,12 @@
 <template>
   <a-form :form="form">
-    <a-row style="width: 60%;margin:20px">
+    <a-row style="width: 100%;margin:20px">
       <a-col :span="24" v-for="(item,index) in mapList" :key="index" class="map-list">
         <a-input-group compact>
           <a-input style="width: 140px" v-model="item.name" placeholder="请填写城市名" />
           <a-input style="width: 140px" v-model="item.longitude" placeholder="请填写经度" />
           <a-input style="width: 140px" v-model="item.latitude" placeholder="请填写纬度" />
-          <a-radio-group v-model="item.isLight" class="radio">
+          <a-radio-group v-model="item.status" class="radio">
             <a-radio :value="1">点亮</a-radio>
             <a-radio :value="0">不点亮</a-radio>
           </a-radio-group>
@@ -14,7 +14,7 @@
             v-if="mapList.length>1"
             class="dynamic-delete-button"
             type="minus-circle-o"
-            @click="removeDomain(domain)"
+            @click="removeMap(item,index)"
           />
         </a-input-group>
       </a-col>
@@ -22,7 +22,7 @@
         <a-button type="primary" style="width: 140px;color:#fff" @click="addMap">
           <a-icon type="plus" /> 添加
         </a-button>
-        <a-button type="primary" style="width: 140px;color:#fff" >提交</a-button>
+        <a-button type="primary" style="width: 140px;color:#fff" @click="submitMap">提交</a-button>
       </a-col>
     </a-row>
   </a-form>
@@ -37,46 +37,55 @@ export default {
       confirmLoading: false,
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
-      mapList: [
-      {
-        iconPath: 'https://www.wingstechnology.cn/mpimage/newImages/prise.png',
-        latitude: 39.55,
-        longitude: 116.24,
-        name: '北京',
-        width: 20,
-        height: 20,
-        isLight: 1
-      }
-      ],
+      mapList: [],
+      delList: [],
       form: this.$form.createForm(this)
     }
   },
   created () {
+    this.mapLists()
   },
   methods: {
     addMap () {
       this.mapList.push({
-        iconPath: 'https://www.wingstechnology.cn/mpimage/newImages/prise.png',
+        iconPath: 'https://www.wingstechnology.cn/mpimage/newImages/light-up.png',
         latitude: null,
         longitude: null,
         name: '',
         width: 20,
         height: 20,
-        isLight: 1
+        status: 1,
+        id: 0
       })
     },
-    removeDomain () {
-
+    submitMap () {
+      const lightMapInfoVOList = this.mapList.filter(item => item.name !== '' && item.latitude && item.longitude)
+      const json = {
+        lightMapInfoVOList: lightMapInfoVOList,
+        delList: this.delList
+      }
+      XHR.mapModify(json).then(res => {
+        if (res.status === 0) {
+          this.$message.success('保存成功')
+        } else {
+          this.$message.success(res.data)
+        }
+      })
+    },
+    removeMap (item, index) {
+      this.mapList.splice(index, 1)
+      if (item.id) {
+        this.delList = [...this.delList, [...item.id]]
+      }
     },
     onChange () {
 
     },
     // 删除视频
-    deleteVideo (item, index) {
-       XHR.videoDel({ code: item.videoCode }).then(res => {
+    mapLists (item, index) {
+       XHR.mapList().then(res => {
         if (res.status === 0) {
-          this.$message.success('删除成功')
-          this.dataSource.splice(index, 1)
+          this.mapList = res.data
         } else {
           this.$message.success(res.data)
         }
