@@ -35,6 +35,12 @@ export const asyncRouterMap = [
             name: 'Map',
             component: () => import('@/views/dashboard/map'),
             meta: { title: '点亮地图', keepAlive: false, permission: ['map'] }
+          },
+          {
+            path: '/dashboard/ownVideo',
+            name: 'ownVideo',
+            component: () => import('@/views/dashboard/ownVideo'),
+            meta: { title: '分部视频', keepAlive: false, permission: ['ownVideo'] }
           }
         ]
       }

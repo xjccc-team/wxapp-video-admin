@@ -48,5 +48,14 @@ class ConfigXHR {
       }
     })
   }
+  // 查找经纬度
+  district (parameter) {
+    return axios({
+      url: `https://apis.map.qq.com/ws/district/v1/search?key=KLPBZ-6YBLP-BZ2D5-LKSFD-RLE25-FVB5R&output=jsonp`,
+      method: 'GET',
+      dataType: 'jsonp',
+      params: parameter
+    })
+  }
 }
 export default new ConfigXHR()

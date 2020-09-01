@@ -1,14 +1,25 @@
 <template>
   <a-form :form="form">
     <a-row style="width: 100%;margin:20px">
+      <a-col :span="24" ><h3 class="title">上传各分部视频</h3></a-col>
       <a-col :span="24" v-for="(item,index) in mapList" :key="index" class="map-list">
-        <a-input-group compact>
-          <a-input style="width: 140px" v-model="item.name" placeholder="请填写城市名" @input="changeLatLon(item.name,index)" />
-          <a-input style="width: 140px" v-model="item.longitude" placeholder="请填写经度" />
-          <a-input style="width: 140px" v-model="item.latitude" placeholder="请填写纬度" />
+
+        <a-input-group compact class="input-group">
+          <span>上传视频：</span>
+          <a-upload
+            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+            :multiple="true"
+            @change="handleChange"
+          >
+            <a-button> <a-icon type="upload" /> 视频 </a-button>
+          </a-upload>
+          <span>名称：</span>
+          <a-input style="width: 200px" v-model="item.name" placeholder="请填写name" />
+          <span>描述：</span>
+          <a-textarea style="width: 200px" v-model="item.descrip" placeholder="请填写描述" />
           <a-radio-group v-model="item.status" class="radio">
-            <a-radio :value="1">点亮</a-radio>
-            <a-radio :value="0">不点亮</a-radio>
+            <a-radio :value="1">显示</a-radio>
+            <a-radio :value="0">隐藏</a-radio>
           </a-radio-group>
           <a-icon
             v-if="mapList.length>1"
@@ -46,6 +57,24 @@ export default {
     this.mapLists()
   },
   methods: {
+    handleChange (info) {
+      let fileList = [...info.fileList]
+
+      // 1. Limit the number of uploaded files
+      //    Only to show two recent uploaded files, and old ones will be replaced by the new
+      fileList = fileList.slice(-2)
+
+      // 2. read from response and show file link
+      fileList = fileList.map(file => {
+        if (file.response) {
+          // Component will show file.url as link
+          file.url = file.response.url
+        }
+        return file
+      })
+
+      this.fileList = fileList
+    },
     addMap () {
       this.mapList.push({
         iconPath: 'https://www.wingstechnology.cn/mpimage/newImages/light-up.png',
@@ -126,6 +155,10 @@ export default {
   cursor: not-allowed;
   opacity: 0.5;
 }
+.title{
+    margin-bottom: 25px;
+    font-weight: bold;
+}
 .radio{
   margin-left: 20px;
   display: inline-flex;
@@ -142,5 +175,11 @@ export default {
 .map-list{
   margin-bottom: 20px;
 }
-
+.input-group{
+  span{
+    height: 32px;
+    margin: 0 10px;
+    line-height: 32px;
+  }
+}
 </style>
