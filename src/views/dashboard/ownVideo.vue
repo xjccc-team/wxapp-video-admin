@@ -2,38 +2,79 @@
   <a-form :form="form">
     <a-row style="width: 100%;margin:20px">
       <a-col :span="24" ><h3 class="title">上传各分部视频</h3></a-col>
-      <a-col :span="24" v-for="(item,index) in mapList" :key="index" class="map-list">
+      <a-col :span="24">
+        <a-list
+          rowKey="id"
+          position
+          :grid="{gutter: 24, lg: 3, md: 2, sm: 1, xs: 1}"
+          :dataSource="videoLists">
+          <a-list-item slot="renderItem" slot-scope="item,index">
+            <template >
+              <a-card :hoverable="false">
+                <a-card-meta>
+                  <a slot="title">{{ item.name||'请填写名称' }}
+                    <a-icon
+                      v-if="videoLists.length>1"
+                      class="dynamic-delete-button"
+                      type="close-circle"
+                      @click="removeVideo(item,index)"
+                    />
+                  </a>
+                  <div class="meta-content" slot="description">
+                    <video class="video" controls="controls" :src="item.videoSrc" width="100%" preload >您的浏览器不支持 HTML5 video 标签。</video>
+                  </div>
+                </a-card-meta>
+                <template class="ant-card-actions" slot="actions">
+                  <div>
+                    <span class="label">视频：</span>
+                    <a-upload action="https://www.mocky.io/v2/5cc8019d300000980a055e76" :data="{'index':index}" :show-upload-list="false" :customRequest="handleChange">
+                      <a-button><a-icon type="upload" />上传视频</a-button>
+                    </a-upload>
+                  </div>
+                  <div>
+                    <span class="label">名称：</span>
+                    <a-input style="width: calc(100% - 90px)" v-model="item.name" placeholder="请填写name" />
+                  </div>
+                  <div>
+                    <span class="label">描述：</span>
+                    <a-textarea style="width: calc(100% - 90px)" v-model="item.description" placeholder="请填写描述" />
+                  </div>
 
+                </template>
+              </a-card>
+            </template>
+          </a-list-item>
+        </a-list>
+      </a-col>
+
+      <!-- <a-col :span="24" v-for="(item,index) in videoLists" :key="index" class="map-list">
+        <video class="video"></video>
         <a-input-group compact class="input-group">
           <span>上传视频：</span>
-          <a-upload
-            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-            :multiple="true"
-            @change="handleChange"
-          >
-            <a-button> <a-icon type="upload" /> 视频 </a-button>
+          <a-upload action="https://www.mocky.io/v2/5cc8019d300000980a055e76" :show-upload-list="false" :customRequest="handleChange">
+            <a-button><a-icon type="upload" />视频</a-button>
           </a-upload>
           <span>名称：</span>
           <a-input style="width: 200px" v-model="item.name" placeholder="请填写name" />
           <span>描述：</span>
-          <a-textarea style="width: 200px" v-model="item.descrip" placeholder="请填写描述" />
+          <a-textarea style="width: 200px" v-model="item.description" placeholder="请填写描述" />
           <a-radio-group v-model="item.status" class="radio">
             <a-radio :value="1">显示</a-radio>
             <a-radio :value="0">隐藏</a-radio>
           </a-radio-group>
           <a-icon
-            v-if="mapList.length>1"
+            v-if="videoLists.length>1"
             class="dynamic-delete-button"
             type="minus-circle-o"
-            @click="removeMap(item,index)"
+            @click="removeVideo(item,index)"
           />
         </a-input-group>
-      </a-col>
+      </a-col> -->
       <a-col :span="24" class="submit-group">
-        <a-button type="primary" style="width: 140px;color:#fff" @click="addMap">
+        <a-button type="primary" style="width: 140px;color:#fff" @click="addVideo">
           <a-icon type="plus" /> 添加
         </a-button>
-        <a-button type="primary" style="width: 140px;color:#fff" @click="submitMap">提交</a-button>
+        <a-button type="primary" style="width: 140px;color:#fff" @click="submitVideo">提交</a-button>
       </a-col>
     </a-row>
   </a-form>
@@ -48,53 +89,53 @@ export default {
       confirmLoading: false,
       labelCol: { span: 4 },
       wrapperCol: { span: 20 },
-      mapList: [],
+      videoLists: [],
       delList: [],
       form: this.$form.createForm(this)
     }
   },
   created () {
-    this.mapLists()
+    this.getVideoLists()
   },
   methods: {
-    handleChange (info) {
-      let fileList = [...info.fileList]
-
-      // 1. Limit the number of uploaded files
-      //    Only to show two recent uploaded files, and old ones will be replaced by the new
-      fileList = fileList.slice(-2)
-
-      // 2. read from response and show file link
-      fileList = fileList.map(file => {
-        if (file.response) {
-          // Component will show file.url as link
-          file.url = file.response.url
+      async uploadImgFun (info) {
+      var formData = new FormData()
+      formData.append('type', 'admin')
+      formData.append('files', info.file)
+      const res = await XHR.uploadVideo(formData)
+      try {
+        if (res.status === 0) {
+          this.$message.success(`${info.file.name} 上传成功`)
+          return res.data
+        } else {
+          this.$message.warning(res.message)
         }
-        return file
-      })
-
-      this.fileList = fileList
+      } catch (error) {
+        console.log(error)
+      }
     },
-    addMap () {
-      this.mapList.push({
-        iconPath: 'https://www.wingstechnology.cn/mpimage/newImages/light-up.png',
-        latitude: null,
-        longitude: null,
-        name: '',
-        width: 20,
-        height: 20,
-        status: 1,
-        id: 0
+    async handleChange (info) {
+     const data = await this.uploadImgFun(info)
+     const index = info.data.index
+     this.$set(this.videoLists[index], 'videoSrc', data)
+    },
+    addVideo () {
+      this.videoLists.push({
+        'code': '0',
+        'name': '',
+        'description': '',
+        'videoSrc': '',
+        'status': 1
       })
     },
-    submitMap () {
-      let lightMapInfoVOList = this.mapList.filter(item => item.name !== '' && item.latitude && item.longitude)
-      lightMapInfoVOList = lightMapInfoVOList.reduce((all, next) => all.some((item) => item['name'] === next['name']) ? all : [...all, next], [])
+    submitVideo () {
+      let adminVideoRecordInfoVOList = this.videoLists.filter(item => item.name !== '' && item.description !== '')
+      adminVideoRecordInfoVOList = adminVideoRecordInfoVOList.reduce((all, next) => all.some((item) => item['name'] === next['name']) ? all : [...all, next], [])
       const json = {
-        lightMapInfoVOList: lightMapInfoVOList,
+        adminVideoRecordInfoVOList: adminVideoRecordInfoVOList,
         delList: this.delList
       }
-      XHR.mapModify(json).then(res => {
+      XHR.videoModify(json).then(res => {
         if (res.status === 0) {
           this.$message.success('保存成功')
         } else {
@@ -102,32 +143,18 @@ export default {
         }
       })
     },
-    removeMap (item, index) {
-      this.mapList.splice(index, 1)
-      if (item.id) {
-        this.delList = [...this.delList, [...item.id]]
+    removeVideo (item, index) {
+      this.videoLists.splice(index, 1)
+      if (item.code) {
+        this.delList = [...this.delList, item.code]
       }
+      console.log(this.delList)
     },
-    changeLatLon (name, index) {
-      this.$jsonp('https://apis.map.qq.com/ws/district/v1/search?key=KLPBZ-6YBLP-BZ2D5-LKSFD-RLE25-FVB5R&output=jsonp', {
-          keyword: name,
-          output: 'jsonp'
-      }).then(res => {
-        if (res.result && res.result[0]) {
-          const locations = res.result[0][0].location
-          console.log(locations)
-          this.$set(this.mapList[index], 'longitude', locations.lng.toFixed(2))
-          this.$set(this.mapList[index], 'latitude', locations.lat.toFixed(2))
-        }
-      }).catch(err => {
-        console.log(err)
-      })
-    },
-    // 删除视频
-    mapLists (item, index) {
-       XHR.mapList().then(res => {
+    // 获取分部视频列表
+    getVideoLists (item, index) {
+       XHR.adminVideoList().then(res => {
         if (res.status === 0) {
-          this.mapList = res.data
+          this.videoLists = res.data
         } else {
           this.$message.success(res.data)
         }
@@ -155,10 +182,41 @@ export default {
   cursor: not-allowed;
   opacity: 0.5;
 }
+.dynamic-delete-button{
+    float: revert;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    z-index: 100;
+}
 .title{
     margin-bottom: 25px;
     font-weight: bold;
 }
+/deep/.ant-card-actions{
+  flex-direction: column;
+  li{
+    width: 100% !important;
+    text-align: left;
+    padding: 0 10px;
+    .label{
+      width: 80px;
+      display: inline-block;
+      text-align: right;
+      float: left;
+    }
+  }
+}
+/deep/ .ant-card-body {
+    padding: 15px;
+  }
+.meta-content{
+  .video{
+    width: 100%;
+    height: 200px;
+  }
+}
+
 .radio{
   margin-left: 20px;
   display: inline-flex;

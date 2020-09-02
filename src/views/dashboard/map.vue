@@ -13,7 +13,7 @@
           <a-icon
             v-if="mapList.length>1"
             class="dynamic-delete-button"
-            type="minus-circle-o"
+            type="close-circle"
             @click="removeMap(item,index)"
           />
         </a-input-group>

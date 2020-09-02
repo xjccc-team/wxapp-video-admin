@@ -48,13 +48,32 @@ class ConfigXHR {
       }
     })
   }
-  // 查找经纬度
-  district (parameter) {
+  // 添加视频
+  uploadVideo (parameter) {
     return axios({
-      url: `https://apis.map.qq.com/ws/district/v1/search?key=KLPBZ-6YBLP-BZ2D5-LKSFD-RLE25-FVB5R&output=jsonp`,
-      method: 'GET',
-      dataType: 'jsonp',
-      params: parameter
+      url: `${ConfigURL}/admin/video/upload`,
+      method: 'POST',
+      data: parameter,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    })
+  }
+  // 添加分部视频列表
+  videoModify (parameter) {
+    return axios({
+      url: `${ConfigURL}/admin/video/modify`,
+      method: 'POST',
+      data: parameter,
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8'
+      }
+    })
+  }
+  // 获取分部视频列表
+  adminVideoList (parameter) {
+    return axios({
+      url: `${ConfigURL}/adminVideo/list`, method: 'get', params: parameter
     })
   }
 }
