@@ -76,5 +76,11 @@ class ConfigXHR {
       url: `${ConfigURL}/adminVideo/list`, method: 'get', params: parameter
     })
   }
+  // 修改分部视频点赞
+  changePraise (parameter) {
+    return axios({
+      url: `${ConfigURL}/admin/adminVideo/changePraise`, method: 'POST', data: parameter
+    })
+  }
 }
 export default new ConfigXHR()

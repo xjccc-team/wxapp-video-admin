@@ -32,6 +32,11 @@
                     </a-upload>
                   </div>
                   <div>
+                    <span class="label">点赞修改：</span>
+                    <a-input-number style="width:110px" v-model="item.praise" />
+                    <a-button class="prise-edit" type="primary" @click="editPrise(item)">确认</a-button>
+                  </div>
+                  <div>
                     <span class="label">名称：</span>
                     <a-input style="width: calc(100% - 90px)" v-model="item.name" placeholder="请填写name" />
                   </div>
@@ -128,6 +133,19 @@ export default {
         'status': 1
       })
     },
+    editPrise (item) {
+      const json = {
+        videoCode: item.code,
+        count: item.praise
+      }
+      XHR.changePraise(json).then(res => {
+        if (res.status === 0) {
+          this.$message.success('修改成功')
+        } else {
+          this.$message.success(res.data)
+        }
+      })
+    },
     submitVideo () {
       let adminVideoRecordInfoVOList = this.videoLists.filter(item => item.name !== '' && item.description !== '')
       adminVideoRecordInfoVOList = adminVideoRecordInfoVOList.reduce((all, next) => all.some((item) => item['name'] === next['name']) ? all : [...all, next], [])
@@ -216,7 +234,11 @@ export default {
     height: 200px;
   }
 }
-
+ .prise-edit{
+    display: inline-block !important;
+    width: auto !important;
+    margin-left: 11px;
+  }
 .radio{
   margin-left: 20px;
   display: inline-flex;
