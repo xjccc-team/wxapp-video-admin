@@ -96,6 +96,7 @@ export default {
       wrapperCol: { span: 20 },
       videoLists: [],
       delList: [],
+      key: 'updatable',
       form: this.$form.createForm(this)
     }
   },
@@ -110,16 +111,17 @@ export default {
       const res = await XHR.uploadVideo(formData)
       try {
         if (res.status === 0) {
-          this.$message.success(`${info.file.name} 上传成功`)
+          this.$message.success({ content: `${info.file.name} 上传成功`, key: this.key })
           return res.data
         } else {
-          this.$message.warning(res.message)
+          this.$message.warning({ content: res.message, key: this.key })
         }
       } catch (error) {
         console.log(error)
       }
     },
     async handleChange (info) {
+    this.$message.loading({ content: 'Loading...', key: this.key })
      const data = await this.uploadImgFun(info)
      const index = info.data.index
      this.$set(this.videoLists[index], 'videoSrc', data)
