@@ -68,6 +68,7 @@ export default {
       XHR.mapModify(json).then(res => {
         if (res.status === 0) {
           this.$message.success('保存成功')
+           this.mapLists()
         } else {
           this.$message.success(res.data)
         }
@@ -76,7 +77,7 @@ export default {
     removeMap (item, index) {
       this.mapList.splice(index, 1)
       if (item.id) {
-        this.delList = [...this.delList, [...item.id]]
+        this.delList = [...this.delList, item.id]
       }
     },
     changeLatLon (name, index) {
