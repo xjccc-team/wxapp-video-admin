@@ -30,6 +30,7 @@
                     <a-upload action="https://www.mocky.io/v2/5cc8019d300000980a055e76" :data="{'index':index}" :show-upload-list="false" :customRequest="handleChange">
                       <a-button><a-icon type="upload" />上传视频</a-button>
                     </a-upload>
+                    <a-input style="width: calc(100% - 90px);margin-left:80px;margin-top:10px;" v-model="item.videoSrc" placeholder="请填写视频地址" />
                   </div>
                   <div>
                     <span class="label">点赞修改：</span>
