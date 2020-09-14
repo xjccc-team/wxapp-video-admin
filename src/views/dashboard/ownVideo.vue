@@ -52,30 +52,6 @@
           </a-list-item>
         </a-list>
       </a-col>
-
-      <!-- <a-col :span="24" v-for="(item,index) in videoLists" :key="index" class="map-list">
-        <video class="video"></video>
-        <a-input-group compact class="input-group">
-          <span>上传视频：</span>
-          <a-upload action="https://www.mocky.io/v2/5cc8019d300000980a055e76" :show-upload-list="false" :customRequest="handleChange">
-            <a-button><a-icon type="upload" />视频</a-button>
-          </a-upload>
-          <span>名称：</span>
-          <a-input style="width: 200px" v-model="item.name" placeholder="请填写name" />
-          <span>描述：</span>
-          <a-textarea style="width: 200px" v-model="item.description" placeholder="请填写描述" />
-          <a-radio-group v-model="item.status" class="radio">
-            <a-radio :value="1">显示</a-radio>
-            <a-radio :value="0">隐藏</a-radio>
-          </a-radio-group>
-          <a-icon
-            v-if="videoLists.length>1"
-            class="dynamic-delete-button"
-            type="minus-circle-o"
-            @click="removeVideo(item,index)"
-          />
-        </a-input-group>
-      </a-col> -->
       <a-col :span="24" class="submit-group">
         <a-button type="primary" style="width: 140px;color:#fff" @click="addVideo">
           <a-icon type="plus" /> 添加
@@ -169,7 +145,6 @@ export default {
       if (item.code) {
         this.delList = [...this.delList, item.code]
       }
-      console.log(this.delList)
     },
     // 获取分部视频列表
     getVideoLists (item, index) {

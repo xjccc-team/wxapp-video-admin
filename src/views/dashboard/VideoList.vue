@@ -75,11 +75,11 @@ export default {
     return {
       pagination: {
         onChange: page => {
-          console.log(page)
+          this.pagination.current = page
           this.getVideoList()
         },
         current: 1,
-        pageSize: 10,
+        pageSize: 12,
         total: 0
       },
       tabList: [
@@ -119,7 +119,7 @@ export default {
       const json = {
         status: this.tabActiveKey,
         pageIndex: this.pagination.current,
-        pageSize: 10,
+        pageSize: this.pagination.pageSize,
         mobilePhone: this.mobilePhone
       }
       XHR.videoList(json).then(res => {
