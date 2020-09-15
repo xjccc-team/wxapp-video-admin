@@ -25,8 +25,9 @@
             <a-card-meta>
               <a slot="title">{{ item.mobilePhone }}</a>
               <div class="meta-content" slot="description">
-                <video controls="controls" width="100%" preload >
-                  <source :src="item.videoSrc" type="video/mp4">您的浏览器不支持 HTML5 video 标签。</video>
+                <video controls="controls" width="100%" preload :src="item.videoSrc" :poster="item.imageSrc">
+                  您的浏览器不支持 HTML5 video 标签。
+                </video>
               </div>
             </a-card-meta>
             <template class="ant-card-actions" slot="actions">
